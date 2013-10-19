@@ -9,6 +9,7 @@ var app = {
     },
 
     registerEvents: function() {
+	    this.bindEvents();
         $(window).on('hashchange', $.proxy(this.route, this));
         $('body').on('mousedown', 'a', function(event) {
             $(event.target).addClass('tappable-active');
@@ -16,6 +17,31 @@ var app = {
         $('body').on('mouseup', 'a', function(event) {
             $(event.target).removeClass('tappable-active');
         });
+    },
+	
+	bindEvents: function() {
+        document.addEventListener('deviceready', this.onDeviceReady, false);
+    },
+	
+	onDeviceReady: function() {
+        app.receivedEvent('deviceready');
+    },
+	
+	receivedEvent: function(id) {
+        var parentElement = document.getElementById(id);
+        var listeningElement = parentElement.querySelector('.listening');
+        var receivedElement = parentElement.querySelector('.received');
+
+        listeningElement.setAttribute('style', 'display:none;');
+        receivedElement.setAttribute('style', 'display:block;');
+		
+		this.store = new MemoryStore(function() {
+            self.route(); //this call puts up the first home screen with three rows, the header that says home, the edit field and then below that the ul list which 
+			//initially is empty.
+			//if I type an r in the edit field, the r is search for in the data in memory-store.js and a list is produced.
+        });
+
+        console.log('Received Event: ' + id);
     },
 
     route: function() {
@@ -83,14 +109,10 @@ var app = {
 	//Remember that anytime that a function is declared inside another function and the function uses local var declared variables the variable turn into 
 	//global variables.
     initialize: function() {
-        var self = this;
+	    var self = this;
         this.detailsURL = /^#employees\/(\d{1,})/;
         this.registerEvents();
-        this.store = new MemoryStore(function() {
-            self.route(); //this call puts up the first home screen with three rows, the header that says home, the edit field and then below that the ul list which 
-			//initially is empty.
-			//if I type an r in the edit field, the r is search for in the data in memory-store.js and a list is produced.
-        });
+        
     }
 
 };
